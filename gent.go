@@ -15,6 +15,7 @@ var (
 	in   = flag.String("i", "", "Path to input template file. If omitted, reads from stdin.")
 	out  = flag.String("o", "", "Path to output go file. If omitted, writes to stdout.")
 	data = flag.String("d", "", "JSON-encoded data for the template.")
+	nh   = flag.Bool("nh", false, "Don't add a header to the output file.")
 )
 
 func main() {
@@ -31,6 +32,7 @@ func main() {
 	var err error
 	var input []byte
 	if *in == "" {
+		fmt.Fprintln(os.Stderr, "Reading from stdin...")
 		input, err = ioutil.ReadAll(os.Stdin)
 	} else {
 		input, err = ioutil.ReadFile(*in)
@@ -60,12 +62,14 @@ func main() {
 	}
 
 	// Attach header.
-	from := ""
-	if *in != "" {
-		from = "from '" + *in + "' "
+	if !*nh {
+		from := ""
+		if *in != "" {
+			from = "from '" + *in + "' "
+		}
+		header = fmt.Sprintf(header, from)
+		src = append([]byte(header), src...)
 	}
-	header = fmt.Sprintf(header, from)
-	src = append([]byte(header), src...)
 
 	if *out == "" {
 		fmt.Print(string(src))
@@ -75,6 +79,7 @@ func main() {
 			fmt.Println("Failed to write output:", err)
 			os.Exit(2)
 		}
+		fmt.Fprintln(os.Stderr, "Wrote to:", *out)
 	}
 }
 
