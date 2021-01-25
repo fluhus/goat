@@ -1,0 +1,8 @@
+package whatever
+
+var (
+{{$a := slice "a" "b" "c" -}}
+{{range $a -}}
+{{.}} int
+{{end}}
+)
