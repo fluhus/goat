@@ -17,6 +17,7 @@ var (
 	out  = flag.String("o", "", "Path to output go file. If omitted, writes to stdout.")
 	data = flag.String("d", "", "JSON-encoded data for the template.")
 	nh   = flag.Bool("nh", false, "Don't add a header to the output file.")
+	nf   = flag.Bool("nf", false, "Don't run gofmt on the result.")
 )
 
 func main() {
@@ -73,10 +74,12 @@ func main() {
 	}
 
 	// Run gofmt.
-	src, err = format.Source(buf.Bytes())
-	if err != nil {
-		fmt.Println("Failed to gofmt the resulting source:", err)
-		os.Exit(2)
+	if !*nf {
+		src, err = format.Source(buf.Bytes())
+		if err != nil {
+			fmt.Println("Failed to gofmt the resulting source:", err)
+			os.Exit(2)
+		}
 	}
 
 	// Write output.
