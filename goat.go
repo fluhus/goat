@@ -75,7 +75,7 @@ func main() {
 
 	// Run gofmt.
 	if !*nf {
-		src, err = format.Source(buf.Bytes())
+		src, err = format.Source(src)
 		if err != nil {
 			fmt.Println("Failed to gofmt the resulting source:", err)
 			os.Exit(2)
