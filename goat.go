@@ -1,3 +1,4 @@
+// Command goat generates go source from a given template.
 package main
 
 import (
@@ -21,6 +22,7 @@ var (
 func main() {
 	flag.Parse()
 
+	// Parse template data.
 	var d interface{}
 	if *data != "" {
 		if err := json.Unmarshal([]byte(*data), &d); err != nil {
@@ -29,6 +31,7 @@ func main() {
 		}
 	}
 
+	// Read template.
 	var err error
 	var input []byte
 	if *in == "" {
@@ -42,6 +45,7 @@ func main() {
 		os.Exit(2)
 	}
 
+	// Parse template.
 	funcs := map[string]interface{}{"slice": makeSlice}
 	t, err := template.New("").Funcs(funcs).Parse(string(input))
 	if err != nil {
@@ -49,17 +53,14 @@ func main() {
 		os.Exit(2)
 	}
 
+	// Execute template.
 	buf := bytes.NewBuffer(nil)
 	err = t.Execute(buf, d)
 	if err != nil {
 		fmt.Println("Failed to execute template:", err)
 		os.Exit(2)
 	}
-	src, err := format.Source(buf.Bytes())
-	if err != nil {
-		fmt.Println("Failed to gofmt the resulting source:", err)
-		os.Exit(2)
-	}
+	src := buf.Bytes()
 
 	// Attach header.
 	if !*nh {
@@ -71,6 +72,14 @@ func main() {
 		src = append([]byte(header), src...)
 	}
 
+	// Run gofmt.
+	src, err = format.Source(buf.Bytes())
+	if err != nil {
+		fmt.Println("Failed to gofmt the resulting source:", err)
+		os.Exit(2)
+	}
+
+	// Write output.
 	if *out == "" {
 		fmt.Print(string(src))
 	} else {
