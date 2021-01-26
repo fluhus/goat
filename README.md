@@ -1,5 +1,9 @@
 # goat
 
+```
+go get github.com/fluhus/goat
+```
+
 goat (short for go-templates) allows one to easily generate golang source from templates using `go generate`.
 
 ## Example
@@ -39,4 +43,21 @@ type counter8 map[int8]int
 type counter16 map[int16]int
 type counter32 map[int32]int
 type counter64 map[int64]int
+```
+
+## Usage
+
+```
+go run github.com/fluhus/goat [-i INPUT_FILE] [-o OUTPUT_FILE] [-d DATA] [-nh] [-nf]
+
+  -d string
+    	JSON-encoded data for the template.
+  -i string
+    	Path to input template file. If omitted, reads from stdin.
+  -nf
+    	Don't run gofmt on the result.
+  -nh
+    	Don't add a header to the output file.
+  -o string
+    	Path to output go file. If omitted, writes to stdout.
 ```
