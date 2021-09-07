@@ -13,7 +13,7 @@ mypackage.go
 ```go
 package mypackage
 
-//go:generate go run github.com/fluhus/goat -i types.got -o types.go -d [8,16,32,64]
+//go:generate goat -i types.got -o types.go -d [8,16,32,64]
 
 // ...
 ```
