@@ -1,10 +1,10 @@
-# goat
+# Goat
 
 ```
 go get github.com/fluhus/goat
 ```
 
-goat (short for go-templates) allows one to easily generate golang source from templates using `go generate`.
+Goat (short for go-templates) allows one to easily generate golang source from templates using `go generate`.
 
 ## Example
 
