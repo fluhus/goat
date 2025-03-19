@@ -7,27 +7,43 @@ import (
 	"flag"
 	"fmt"
 	"go/format"
-	"io/ioutil"
+	"io"
 	"os"
 	"text/template"
 )
 
 var (
-	in   = flag.String("i", "", "Path to input template file. If omitted, reads from stdin.")
-	out  = flag.String("o", "", "Path to output go file. If omitted, writes to stdout.")
-	data = flag.String("d", "", "JSON-encoded data for the template.")
-	nh   = flag.Bool("nh", false, "Don't add a header to the output file.")
-	nf   = flag.Bool("nf", false, "Don't run gofmt on the result.")
+	in       = flag.String("i", "", "Path to input template file. If omitted, reads from stdin.")
+	out      = flag.String("o", "", "Path to output go file. If omitted, writes to stdout.")
+	nh       = flag.Bool("nh", false, "Don't add a header to the output file.")
+	nf       = flag.Bool("nf", false, "Don't run gofmt on the result.")
+	data     = flag.String("d", "", "JSON-encoded `data` for the template.")
+	dataFile = flag.String("df", "", "JSON-encoded `file` with data for the template.")
 )
 
 func main() {
 	flag.Parse()
 
 	// Parse template data.
-	var d interface{}
+	if *data != "" && *dataFile != "" {
+		fmt.Fprintln(os.Stderr, "Only one of -d and -df can be used.")
+		os.Exit(2)
+	}
+	var d any
 	if *data != "" {
 		if err := json.Unmarshal([]byte(*data), &d); err != nil {
 			fmt.Fprintln(os.Stderr, "Failed to parse data (-d param):", err)
+			os.Exit(2)
+		}
+	}
+	if *dataFile != "" {
+		data, err := os.ReadFile(*dataFile)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, "Could not read data file:", err)
+			os.Exit(2)
+		}
+		if err := json.Unmarshal(data, &d); err != nil {
+			fmt.Fprintln(os.Stderr, "Failed to parse data file (-df param):", err)
 			os.Exit(2)
 		}
 	}
@@ -37,9 +53,9 @@ func main() {
 	var input []byte
 	if *in == "" {
 		fmt.Fprintln(os.Stderr, "Reading from stdin...")
-		input, err = ioutil.ReadAll(os.Stdin)
+		input, err = io.ReadAll(os.Stdin)
 	} else {
-		input, err = ioutil.ReadFile(*in)
+		input, err = os.ReadFile(*in)
 	}
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Failed to read input:", err)
@@ -86,7 +102,7 @@ func main() {
 	if *out == "" {
 		fmt.Print(string(src))
 	} else {
-		err = ioutil.WriteFile(*out, src, 0644)
+		err = os.WriteFile(*out, src, 0644)
 		if err != nil {
 			fmt.Println("Failed to write output:", err)
 			os.Exit(2)
